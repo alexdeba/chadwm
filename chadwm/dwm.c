@@ -65,6 +65,8 @@
 #define HEIGHT(X) ((X)->h + 2 * (X)->bw)
 #define TAGMASK ((1 << LENGTH(tags)) - 1)
 #define TAGSLENGTH              (LENGTH(tags))
+#define SPTAG(i) 		((1 << LENGTH(tags)) << (i))
+#define SPTAGMASK 	(((1 << LENGTH(scratchpads))-1) << LENGTH(tags)))
 #define TEXTW(X) (drw_fontset_getwidth(drw, (X)) + lrpad)
 #define MAXTABS 50
 
@@ -328,6 +330,7 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
+static void togglescratch(const Arg *arg);
 static void togglefullscr(const Arg *arg);
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
@@ -445,6 +448,7 @@ struct Monitor {
 #include "vanitygaps.c"
 #include "movestack.c"
 #include "shiftview.c"
+#include "scratchpad.c"
 
 struct Pertag {
 	unsigned int curtag, prevtag; /* current and previous tag */

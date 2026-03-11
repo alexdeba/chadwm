@@ -62,6 +62,27 @@ static const char *colors[][3]      = {
     [SchemeBtnClose]   = { red,     black,  black },
 };
 
+#define TERMINAL "st"
+#define TERMCLASS "St"
+#define TERMFONTS "RobotoMonoNerdFont:pixelsize=14`"
+#define BIGTERMFONTS "MonokiNerdFont:pixelsize=17"
+
+typedef struct {
+   const char *name;
+   const void *cmd;
+} Sp;
+const char *spcmd1[] = {"st", "-n", "spterm",  "-f", TERMFONTS,    "-    g", "100x32", NULL };
+const char *spcmd2[] = {"st", "-n", "spcalc",  "-f", BIGTERMFONTS, "-    g", "50x20",  "-e", "bc",      "-lq", NULL };
+const char *spcmd3[] = {"st", "-n", "spmusic", "-f", TERMFONTS,    "-    g", "90x18",  "-e", "ncmpcpp", "-s", "playlist_editor",NULL };
+
+static Sp scratchpads[] = {
+   /* name          cmd  */
+   {"spterm",      spcmd1},
+   {"spranger",    spcmd2},
+   {"spmusic",     spcmd3},
+};
+
+
 /* tagging */
 static char *tags[] = {"", "", "", "", ""};
 
@@ -150,8 +171,14 @@ static const Key keys[] = {
     {MODKEY,                            XK_u,       spawn,
         SHCMD("maim --select | xclip -selection clipboard -t image/png")},
 
-    { MODKEY,                           XK_c,       spawn,          SHCMD("rofi -show drun") },
+    { MODKEY,                           XK_r,       spawn,          SHCMD("rofi -show drun") },
     { MODKEY,                           XK_Return,  spawn,          SHCMD("st")},
+
+  	{ MODKEY,                 					XK_c,       togglescratch,  {.ui = 1} },            // calc
+ 	  { MODKEY,   						            XK_u,       togglescratch,  {.ui = 0} },            // scratchpad
+    { MODKEY,          					  	    XK_w,       spawn,          SHCMD("google-chrome") },
+    { MODKEY,           					      XK_z,       togglescratch,  {.ui = 2} },            // music
+
 
     // toggle stuff
     { MODKEY,                           XK_b,       togglebar,      {0} },
