@@ -6,7 +6,7 @@
 interval=0
 
 # load colors
-. ~/.config/chadwm/scripts/bar_themes/tundra
+. ~/softs/chadwm/scripts/bar_themes/tundra
 
 cpu() {
   cpu_val=$(grep -o "^[^ ]*" /proc/loadavg)
@@ -28,9 +28,11 @@ pkg_updates() {
 }
 
 battery() {
-  val="$(cat /sys/class/power_supply/BAT1/capacity)"
-  printf "^c$black^ ^b$red^ BAT"
-  printf "^c$white^ ^b$grey^ $val ^b$black^"
+  val="$(cat /sys/class/power_supply/BAT0/capacity)"
+	case "$(cat /sys/class/power_supply/BAT0/status 2>/dev/null)" in
+	Charging) printf "^c$black^ ^b$red^ BAT" "^c$white^ ^b$grey^ 󰂄$val ^b$black^";;
+	Discharging) printf "^c$black^ ^b$red^ BAT" "^c$white^ ^b$grey^ $val ^b$black^";;
+	esac
 
 }
 
@@ -53,7 +55,7 @@ wlan() {
 
 clock() {
 	printf "^c$black^ ^b$darkblue^ 󱑆 "
-	printf "^c$black^^b$blue^ $(date '+%H:%M')  "
+	printf "^c$black^^b$blue^ $(date '+%d/%m/%Y %H:%M')  "
 }
 
 while true; do
