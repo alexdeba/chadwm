@@ -71,9 +71,9 @@ typedef struct {
    const char *name;
    const void *cmd;
 } Sp;
-const char *spcmd1[] = {"st", "-n", "spterm",  "-f", TERMFONTS,    "-    g", "100x32", NULL };
-const char *spcmd2[] = {"st", "-n", "spcalc",  "-f", BIGTERMFONTS, "-    g", "50x20",  "-e", "bc",      "-lq", NULL };
-const char *spcmd3[] = {"st", "-n", "spmusic", "-f", TERMFONTS,    "-    g", "90x18",  "-e", "ncmpcpp", "-s", "playlist_editor",NULL };
+const char *spcmd1[] = {"st", "-n", "spterm",  "-f", TERMFONTS,    "-g", "100x32", NULL };
+const char *spcmd2[] = {"st", "-n", "spcalc",  "-f", BIGTERMFONTS, "-g", "50x20",  "-e", "bc",      "-lq", NULL };
+const char *spcmd3[] = {"st", "-n", "spmusic", "-f", TERMFONTS,    "-g", "90x18",  "-e", "ncmpcpp", "-s", "playlist_editor",NULL };
 
 static Sp scratchpads[] = {
    /* name          cmd  */
@@ -86,7 +86,7 @@ static Sp scratchpads[] = {
 /* tagging */
 static char *tags[] = {"", "", "", "", ""};
 
-static const char* eww[] = { "eww", "-c", "/home/siduck/.config/chadwm/eww", "open" , "eww", NULL };
+static const char* eww[] = { "eww", "-c", "/home/alex/.config/eww", "open" , "eww", NULL };
 
 static const Launcher launchers[] = {
     /* command     name to display */
@@ -108,9 +108,12 @@ static const Rule rules[] = {
      *	WM_NAME(STRING) = title
      */
     /* class      instance    title       tags mask     iscentered   isfloating   monitor */
-    { "Gimp",     NULL,       NULL,       0,            0,           1,           -1 },
-    { "Firefox",  NULL,       NULL,       1 << 8,       0,           0,           -1 },
-    { "eww",      NULL,       NULL,       0,            0,           1,           -1 },
+    { "google-chrome",  NULL,       NULL,       1 << 8,       0,           0,           -1 },
+    { "eww",      			NULL,       NULL,       0,            0,           1,           -1 },
+    { TERMCLASS,  			"spterm",   NULL,       SPTAG(0),     1,           1,           -1 },
+    { TERMCLASS,  			"spcalc",   NULL,       SPTAG(1),     1,           1,           -1 },
+    { TERMCLASS,  			"spmusic",  NULL,       SPTAG(2),     1,           1,           -1 },
+		
 };
 
 /* layout(s) */
@@ -171,14 +174,14 @@ static const Key keys[] = {
     {MODKEY,                            XK_u,       spawn,
         SHCMD("maim --select | xclip -selection clipboard -t image/png")},
 
+		// Apps
     { MODKEY,                           XK_r,       spawn,          SHCMD("rofi -show drun") },
     { MODKEY,                           XK_Return,  spawn,          SHCMD("st")},
-
+    { MODKEY,          					  	    XK_w,       spawn,          SHCMD("google-chrome") },
   	{ MODKEY,                 					XK_c,       togglescratch,  {.ui = 1} },            // calc
  	  { MODKEY,   						            XK_u,       togglescratch,  {.ui = 0} },            // scratchpad
-    { MODKEY,          					  	    XK_w,       spawn,          SHCMD("google-chrome") },
     { MODKEY,           					      XK_z,       togglescratch,  {.ui = 2} },            // music
-
+    { MODKEY, 													XK_d, 			spawn,         	SHCMD("eww open --toggle eww") 	},
 
     // toggle stuff
     { MODKEY,                           XK_b,       togglebar,      {0} },

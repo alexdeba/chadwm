@@ -66,7 +66,7 @@
 #define TAGMASK ((1 << LENGTH(tags)) - 1)
 #define TAGSLENGTH              (LENGTH(tags))
 #define SPTAG(i) 		((1 << LENGTH(tags)) << (i))
-#define SPTAGMASK 	(((1 << LENGTH(scratchpads))-1) << LENGTH(tags)))
+#define SPTAGMASK 	(((1 << LENGTH(scratchpads))-1) << LENGTH(tags))
 #define TEXTW(X) (drw_fontset_getwidth(drw, (X)) + lrpad)
 #define MAXTABS 50
 
