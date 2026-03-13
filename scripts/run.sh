@@ -17,7 +17,8 @@ setxkbmap -option:escape
 picom &
 
 # define the status part (right-hand side) of the dwm bar
-dash ~/softs/chadwm/scripts/bar.sh &
+go build -o dwm_bar bar.go
+dwm_bar &
 
 # eww
 eww daemon &
