@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-// Définition des couleurs (Thème Tundra)
 const (
 	Black    = "^c#1e222a^"
 	White    = "^c#abb2bf^"
@@ -34,7 +33,6 @@ func getCPU() string {
 }
 
 func getUpdates() string {
-	// Adaptation Debian : compte les paquets pouvant être mis à jour via apt
 	cmd := "apt list --upgradable 2>/dev/null | grep -c upgradable"
 	out, _ := exec.Command("sh", "-c", cmd).Output()
 	count := strings.TrimSpace(string(out))
@@ -77,7 +75,7 @@ func getMem() string {
 }
 
 func getWlan() string {
-	data, _ := os.ReadFile("/sys/class/net/wlan0/operstate") // Ajuste le nom de l'interface si besoin
+	data, _ := os.ReadFile("/sys/class/net/wlan0/operstate")
 	state := strings.TrimSpace(string(data))
 	
 	if state == "up" {
@@ -97,7 +95,7 @@ func main() {
 	counter := 0
 
 	for range ticker.C {
-		// Mise à jour des paquets toutes les heures
+		// update every hour
 		if counter%3600 == 0 {
 			updates = getUpdates()
 		}
