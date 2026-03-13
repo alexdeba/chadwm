@@ -81,5 +81,4 @@ while true; do
   interval=$((interval + 1))
 
 	sleep 1 && xsetroot -name "$(pkg_updates) $(cpu) $(battery) $(mem) $(wlan) $(clock)"
-  echo "$(cpu) $(battery) $(mem) $(wlan) $(clock)"
 done
