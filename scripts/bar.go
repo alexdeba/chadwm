@@ -9,8 +9,10 @@ import (
 )
 
 const (
-	Black    = "^c#1e222a^"
-	White    = "^c#abb2bf^"
+	// foreground colors
+	Black = "^c#1e222a^"
+	White = "^c#abb2bf^"
+	// background colors
 	Grey     = "^b#282c34^"
 	Green    = "^b#98c379^"
 	Red      = "^b#e06c75^"
@@ -21,6 +23,7 @@ const (
 var (
 	iconsDischarg = []string{"󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"}
 	iconsCharging = []string{"󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅"}
+	network_name  string
 )
 
 func getCPU() string {
@@ -29,35 +32,26 @@ func getCPU() string {
 		return ""
 	}
 	val := strings.Split(string(data), " ")[0]
-	return fmt.Sprintf("%s %s  %s %s %s%% ^b#1e222a^", Black, Green, White, Grey, val)
-}
-
-func getUpdates() string {
-	cmd := "apt list --upgradable 2>/dev/null | grep -c upgradable"
-	out, _ := exec.Command("sh", "-c", cmd).Output()
-	count := strings.TrimSpace(string(out))
-
-	if count == "0" || count == "" {
-		return fmt.Sprintf("  %s    Fully Updated", Green)
-	}
-	return fmt.Sprintf("  %s    %s updates", White, count)
+	return fmt.Sprintf("%s %s     %s %s %s%% ^b#1e222a^", Black, Green, White, Grey, val)
 }
 
 func getBattery() string {
 	capData, _ := os.ReadFile("/sys/class/power_supply/BAT0/capacity")
 	statData, _ := os.ReadFile("/sys/class/power_supply/BAT0/status")
-	
+
 	capacity := strings.TrimSpace(string(capData))
 	status := strings.TrimSpace(string(statData))
-	
+
 	var val int
 	fmt.Sscanf(capacity, "%d", &val)
-	
+
 	index := 0
 	if val > 0 {
 		index = (val - 1) / 10
 	}
-	if index > 9 { index = 9 }
+	if index > 9 {
+		index = 9
+	}
 
 	icon := iconsDischarg[index]
 	if status == "Charging" || status == "Full" {
@@ -75,9 +69,9 @@ func getMem() string {
 }
 
 func getWlan() string {
-	data, _ := os.ReadFile("/sys/class/net/wlan0/operstate")
+	data, _ := os.ReadFile(fmt.Sprintf("/sys/class/net/%s/operstate", network_name))
 	state := strings.TrimSpace(string(data))
-	
+
 	if state == "up" {
 		return fmt.Sprintf("%s %s 󰤨  ^d^^c#61afef^ Connected", Black, Blue)
 	}
@@ -90,19 +84,23 @@ func getClock() string {
 }
 
 func main() {
-	var updates string
+
+	// Check if a parameter is present
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: ./dwm_bar <network_interface>")
+		return
+	}
+
+	network_name = os.Args[1]
+
 	ticker := time.NewTicker(1 * time.Second)
 	counter := 0
 
 	for range ticker.C {
-		// update every hour
-		if counter%3600 == 0 {
-			updates = getUpdates()
-		}
 
-		status := fmt.Sprintf("%s %s %s %s %s %s", 
-			updates, getCPU(), getBattery(), getMem(), getWlan(), getClock())
-		
+		status := fmt.Sprintf("%s %s %s %s %s",
+			getCPU(), getBattery(), getMem(), getWlan(), getClock())
+
 		exec.Command("xsetroot", "-name", status).Run()
 		counter++
 	}

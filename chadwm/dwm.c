@@ -1046,6 +1046,18 @@ Monitor *dirtomon(int dir) {
   return m;
 }
 
+size_t utf8_strlen(const char *s) {
+    size_t count = 0;
+    while (*s) {
+        // Si l'octet ne commence pas par '10', c'est le début d'un nouveau caractère
+        if ((*s & 0xc0) != 0x80) {
+            count++;
+        }
+        s++;
+    }
+    return count;
+}
+
 int drawstatusbar(Monitor *m, int bh, char *stext) {
   int ret, i, w, x, len;
   short isCode = 0;

@@ -185,7 +185,7 @@ static const Key keys[] = {
  	  { MODKEY,   						            XK_u,       togglescratch,  {.ui = 0} },            // scratchpad
     { MODKEY,           					      XK_z,       togglescratch,  {.ui = 2} },            // music
     { MODKEY,           					      XK_v,       togglescratch,  {.ui = 3} },            // list of shortcuts
-    { MODKEY, 													XK_d, 			spawn,         	SHCMD("eww open --toggle eww") 	},
+    { MODKEY, 													XK_g, 			spawn,         	SHCMD("eww open --toggle eww") 	},
 
     // toggle stuff
     { MODKEY,                           XK_b,       togglebar,      {0} },
