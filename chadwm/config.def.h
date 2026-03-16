@@ -77,6 +77,7 @@ const char *spcmd2[] = {"st","-n","spcalc",  "-f", BIGTERMFONTS,  "-g", "50x20",
 const char *spcmd3[] = {"st","-n","spmusic", "-f", TERMFONTS,     "-g", "90x18",  "-e", "ncmpcpp", "-s", "playlist_editor",NULL };
 const char *spcmd4[] = {"st","-n","spterm",  "-f", SMALLTERMFONTS,"-g", "105x36", "-e", "dash", "-c", "glow", "-n", "-t", "~/Documents/QRGs/alias_shortcuts.md", NULL };
 
+
 static Sp scratchpads[] = {
    /* name          cmd  */
    {"spterm",      spcmd1},
@@ -179,13 +180,16 @@ static const Key keys[] = {
 
 		// Apps
     { MODKEY,                           XK_r,       spawn,          SHCMD("rofi -show drun") },
-    { MODKEY,                           XK_Return,  spawn,          SHCMD("st")},
+    { MODKEY,                           XK_Return,  spawn,          SHCMD("alacritty")},
     { MODKEY,          					  	    XK_w,       spawn,          SHCMD("google-chrome") },
   	{ MODKEY,                 					XK_c,       togglescratch,  {.ui = 1} },            // calc
  	  { MODKEY,   						            XK_u,       togglescratch,  {.ui = 0} },            // scratchpad
     { MODKEY,           					      XK_z,       togglescratch,  {.ui = 2} },            // music
     { MODKEY,           					      XK_v,       togglescratch,  {.ui = 3} },            // list of shortcuts
     { MODKEY, 													XK_g, 			spawn,         	SHCMD("eww open --toggle eww") 	},
+    { MODKEY, 													XK_p, 			spawn,         	SHCMD("~/scripts/toggleheads.pl") 	},
+    { MODKEY, 													XK_s, 			spawn,         	SHCMD("systemctl suspend") 	},
+    { MODKEY, 													XK_Print, 	spawn,         	SHCMD("~/scripts/scregcp.sh -s /home/alex/Images/screenshots/") 	},
 
     // toggle stuff
     { MODKEY,                           XK_b,       togglebar,      {0} },
@@ -209,7 +213,6 @@ static const Key keys[] = {
     { MODKEY|ShiftMask,                 XK_h,       setcfact,       {.f = +0.25} },
     { MODKEY|ShiftMask,                 XK_l,       setcfact,       {.f = -0.25} },
     { MODKEY|ShiftMask,                 XK_o,       setcfact,       {.f =  0.00} },
-
 
     { MODKEY|ShiftMask,                 XK_j,       movestack,      {.i = +1 } },
     { MODKEY|ShiftMask,                 XK_k,       movestack,      {.i = -1 } },
@@ -244,6 +247,8 @@ static const Key keys[] = {
     { MODKEY,                           XK_t,       setlayout,      {.v = &layouts[0]} },
     { MODKEY|ShiftMask,                 XK_f,       setlayout,      {.v = &layouts[1]} },
     { MODKEY,                           XK_m,       setlayout,      {.v = &layouts[2]} },
+    { MODKEY,                           XK_i,       setlayout,      {.v = &layouts[5]} },
+    { MODKEY|ShiftMask,                 XK_m,       setlayout,      {.v = &layouts[11]} },
     { MODKEY|ControlMask,               XK_g,       setlayout,      {.v = &layouts[10]} },
     { MODKEY|ControlMask|ShiftMask,     XK_t,       setlayout,      {.v = &layouts[13]} },
     { MODKEY,                           XK_space,   setlayout,      {0} },

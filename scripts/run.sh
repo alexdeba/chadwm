@@ -4,7 +4,7 @@
 ## Graphics ##
 ##############
 xrdb merge ~/.Xresources 
-brightnessctl set 60%
+brightnessctl set 50%
 feh --bg-fill ~/Images/Wallpapers/wall.png &
 
 # for graphical effects: blur, round corner
@@ -36,8 +36,15 @@ setxkbmap -option:escape
 #############
 ## Widgets ##
 #############
-# eww
+# with eww
 eww daemon &
 
+###################
+## Notifications ##
+###################
+
+dunst &
+
+#######################
 # finally, launch dwm
 while type chadwm >/dev/null; do chadwm && continue || break; done

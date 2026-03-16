@@ -73,9 +73,9 @@ func getWlan() string {
 	state := strings.TrimSpace(string(data))
 
 	if state == "up" {
-		return fmt.Sprintf("%s %s 󰤨  ^d^^c#61afef^ Connected", Black, Blue)
+		return fmt.Sprintf("%s %s 󰤨  ^d^^c#61afef^ Up", Black, Blue)
 	}
-	return fmt.Sprintf("%s %s 󰤭  ^d^^c#61afef^ Disconnected", Black, Blue)
+	return fmt.Sprintf("%s %s 󰤭  ^d^^c#61afef^ Down", Black, Blue)
 }
 
 func getClock() string {
