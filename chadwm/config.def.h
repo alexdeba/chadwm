@@ -64,17 +64,17 @@ static const char *colors[][3]      = {
 
 #define TERMINAL "st"
 #define TERMCLASS "St"
-#define SMALLTERMFONTS "RobotoMonoNerdFont:pixelsize=12`"
-#define TERMFONTS "RobotoMonoNerdFont:pixelsize=14`"
-#define BIGTERMFONTS "MonokiNerdFont:pixelsize=17"
+#define SMALLTERMFONTS "RobotoMonoNerdFont:pixelsize=9"
+#define TERMFONTS "RobotoMonoNerdFont:pixelsize=10"
+#define BIGTERMFONTS "RobotoMonoNerdFont:pixelsize=15"
 
 typedef struct {
    const char *name;
    const void *cmd;
 } Sp;
 const char *spcmd1[] = {"st","-n","spterm",  "-f", TERMFONTS,     "-g", "100x32", NULL };
-const char *spcmd2[] = {"st","-n","spcalc",  "-f", BIGTERMFONTS,  "-g", "50x20",  "-e", "bc",      "-lq", NULL };
-const char *spcmd3[] = {"st","-n","spmusic", "-f", TERMFONTS,     "-g", "90x18",  "-e", "ncmpcpp", "-s", "playlist_editor",NULL };
+const char *spcmd2[] = {"st","-n","spcalc",  "-f", BIGTERMFONTS,  "-g", "50x20",  "-e", "qalc", NULL };
+const char *spcmd3[] = {"st","-n","spmusic", "-f", TERMFONTS,     "-g", "90x18",  "-e", "ncmpcpp", "-s", "playlist_editor", NULL };
 const char *spcmd4[] = {"st","-n","spterm",  "-f", SMALLTERMFONTS,"-g", "105x36", "-e", "dash", "-c", "glow", "-n", "-t", "~/Documents/QRGs/alias_shortcuts.md", NULL };
 
 
