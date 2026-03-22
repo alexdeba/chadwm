@@ -93,15 +93,24 @@ func main() {
 
 	network_name = os.Args[1]
 
-	ticker := time.NewTicker(1 * time.Second)
-	counter := 0
+	ticker1s := time.NewTicker(1 * time.Second)
+	ticker10s := time.NewTicker(10 * time.Second)
 
-	for range ticker.C {
-
-		status := fmt.Sprintf("%s %s %s %s %s",
+	// On utilise une boucle infinie
+	for {
+		select {
+		case <-ticker1s.C:
+			// S'exécute toutes les 1s
+			status := fmt.Sprintf("%s %s %s %s %s",
 			getCPU(), getBattery(), getMem(), getWlan(), getClock())
+			exec.Command("xsetroot", "-name", status).Run()
+			exec.Command("./warn_low_battery.sh").Run()
 
-		exec.Command("xsetroot", "-name", status).Run()
-		counter++
+		case <-ticker10s.C:
+			// S'exécute toutes les 10s
+			exec.Command("./mon_action_10s.sh").Run()
+
+		}
 	}
+
 }
