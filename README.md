@@ -20,7 +20,6 @@ https://user-images.githubusercontent.com/59060246/223068062-d3c9847a-8713-42c7-
 
 # Requirements
 
-- dash (shell)
 - imlib2 
 - xsetroot package (status2d uses this to add colors on dwmbar)
 - JetbrainsMono Nerd Font or any nerd font but dont forget to set it in config.def.h
