@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+  "path/filepath"
 	"strings"
 	"time"
 )
@@ -93,23 +94,29 @@ func main() {
 
 	network_name = os.Args[1]
 
+	// get the path to this executable
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	binDir := filepath.Dir(ex)
+
+	// 3. Construire le chemin vers le script
+	scriptPath := filepath.Join(binDir, "./warn_low_battery.sh")
+	cmd := exec.Command("sh", scriptPath)
+
 	ticker1s := time.NewTicker(1 * time.Second)
 	ticker10s := time.NewTicker(10 * time.Second)
 
-	// On utilise une boucle infinie
 	for {
 		select {
 		case <-ticker1s.C:
-			// S'exécute toutes les 1s
 			status := fmt.Sprintf("%s %s %s %s %s",
 			getCPU(), getBattery(), getMem(), getWlan(), getClock())
 			exec.Command("xsetroot", "-name", status).Run()
-			exec.Command("./warn_low_battery.sh").Run()
 
 		case <-ticker10s.C:
-			// S'exécute toutes les 10s
-			exec.Command("./mon_action_10s.sh").Run()
-
+			cmd.Run()
 		}
 	}
 
