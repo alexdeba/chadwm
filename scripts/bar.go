@@ -75,7 +75,7 @@ func getCPU() string {
 		usage = 100 * (1 - float64(idle-prevIdle)/float64(dTotal))
 	}
 	prevIdle, prevTotal = idle, total
-	return fmt.Sprintf("%s %s     %s %s %.0f%% %s", Black, Green, White, Grey, usage, BlackBg)
+	return fmt.Sprintf("%s %s    \uf4bc %s %s %.0f%% %s", Black, Green, White, Grey, usage, BlackBg) // \uf4bc : nf-oct-cpu
 }
 
 // readBattery returns the capacity (in %) and the status of the battery
@@ -164,7 +164,7 @@ func getMem() string {
 	if used >= 1024 {
 		usage = fmt.Sprintf("%.1fG", used/1024)
 	}
-	return fmt.Sprintf("%s %s  %s %s  %s %s", Black, Green, White, Grey, usage, BlackBg)
+	return fmt.Sprintf("%s %s \ue266 %s %s  %s %s", Black, Green, White, Grey, usage, BlackBg) // \ue266 : puce (RAM)
 }
 
 func getWlan() string {
