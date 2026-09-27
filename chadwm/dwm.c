@@ -190,6 +190,7 @@ struct Client {
   int bw, oldbw;
   unsigned int tags;
   int isfixed, iscentered, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
+  int fsbw; /* border before fullscreen (oldbw keeps the window's original one) */
  	unsigned int icw, ich; Picture icon;
 	int beingmoved;
   Client *next;
@@ -725,7 +726,7 @@ void cleanup(void) {
   XUngrabKey(dpy, AnyKey, AnyModifier, root);
   while (mons)
     cleanupmon(mons);
-  if (showsystray) {
+  if (showsystray && systray) {
     XUnmapWindow(dpy, systray->win);
     XDestroyWindow(dpy, systray->win);
     free(systray);
@@ -772,7 +773,7 @@ void clientmessage(XEvent *e) {
   XClientMessageEvent *cme = &e->xclient;
   Client *c = wintoclient(cme->window);
 
-  if (showsystray && cme->window == systray->win &&
+  if (showsystray && systray && cme->window == systray->win &&
       cme->message_type == netatom[NetSystemTrayOP]) {
     /* add systray icons */
     if (cme->data.l[1] == SYSTEM_TRAY_REQUEST_DOCK) {
@@ -893,9 +894,11 @@ void configurerequest(XEvent *e) {
   XWindowChanges wc;
 
   if ((c = wintoclient(ev->window))) {
-    if (ev->value_mask & CWBorderWidth)
-      c->bw = ev->border_width;
-    else if (c->isfloating || !selmon->lt[selmon->sellt]->arrange) {
+    if (ev->value_mask & CWBorderWidth) {
+      /* apply it too (RetroGate bezels ask for no border) */
+      c->bw = wc.border_width = ev->border_width;
+      XConfigureWindow(dpy, c->win, CWBorderWidth, &wc);
+    } else if (c->isfloating || !selmon->lt[selmon->sellt]->arrange) {
       m = c->mon;
       if (ev->value_mask & CWX) {
         c->oldx = c->x;
@@ -1080,8 +1083,10 @@ int drawstatusbar(Monitor *m, int bh, char *stext) {
         text[i] = '\0';
         w += TEXTW(text) - lrpad;
         text[i] = '^';
-        if (text[++i] == 'f')
-          w += atoi(text + ++i);
+        if (text[i + 1] == 'f' && text[i + 2]) {
+          i += 2;
+          w += atoi(text + i);
+        }
       } else {
         isCode = 0;
         text = text + i + 1;
@@ -1124,14 +1129,14 @@ int drawstatusbar(Monitor *m, int bh, char *stext) {
       x += w;
 
       /* process code */
-      while (text[++i] != '^') {
-        if (text[i] == 'c') {
+      while (text[++i] && text[i] != '^') {
+        if (text[i] == 'c' && strnlen(text + i + 1, 7) == 7) {
           char buf[8];
           memcpy(buf, (char *)text + i + 1, 7);
           buf[7] = '\0';
           drw_clr_create(drw, &drw->scheme[ColFg], buf);
           i += 7;
-        } else if (text[i] == 'b') {
+        } else if (text[i] == 'b' && strnlen(text + i + 1, 7) == 7) {
           char buf[8];
           memcpy(buf, (char *)text + i + 1, 7);
           buf[7] = '\0';
@@ -1141,23 +1146,25 @@ int drawstatusbar(Monitor *m, int bh, char *stext) {
           drw->scheme[ColFg] = scheme[SchemeNorm][ColFg];
           drw->scheme[ColBg] = scheme[SchemeNorm][ColBg];
         } else if (text[i] == 'r') {
-          int rx = atoi(text + ++i);
-          while (text[++i] != ',')
-            ;
-          int ry = atoi(text + ++i);
-          while (text[++i] != ',')
-            ;
-          int rw = atoi(text + ++i);
-          while (text[++i] != ',')
-            ;
-          int rh = atoi(text + ++i);
-
-          drw_rect(drw, rx + x, ry + borderpx + vertpadbar / 2, rw, rh, 1, 0);
-        } else if (text[i] == 'f') {
+          int r[4], k;
+          for (k = 0; k < 4 && text[i]; k++) {
+            r[k] = atoi(text + ++i);
+            while (text[i] && text[i] != ',' && text[i] != '^')
+              i++;
+          }
+          if (k == 4)
+            drw_rect(drw, r[0] + x, r[1] + borderpx + vertpadbar / 2, r[2], r[3], 1, 0);
+          if (!text[i] || text[i] == '^')
+            i--; /* let the outer loop see the end or the closing ^ */
+        } else if (text[i] == 'f' && text[i + 1]) {
           x += atoi(text + ++i);
         }
       }
 
+      if (!text[i]) { /* unterminated code: nothing left to draw */
+        text += i;
+        break;
+      }
       text = text + i + 1;
       i = -1;
       isCode = 0;
@@ -1642,7 +1649,8 @@ cmpint(const void *p1, const void *p2) {
   /* The actual arguments to this function are "pointers to
      pointers to char", but strcmp(3) arguments are "pointers
      to char", hence the following cast plus dereference */
-  return *((int*) p1) > * (int*) p2;
+  int a = *(const int *)p1, b = *(const int *)p2;
+  return (a > b) - (a < b);
 }
 
 
@@ -1678,13 +1686,13 @@ drawtab(Monitor *m) {
         if(tot_width > mw){ //not enough space to display the labels, they need to be truncated
 	  memcpy(sorted_label_widths, m->tab_widths, sizeof(int) * m->ntabs);
 	  qsort(sorted_label_widths, m->ntabs, sizeof(int), cmpint);
+	  tot_width = buttons_w;
 	  for(i = 0; i < m->ntabs; ++i){
           if(tot_width + (m->ntabs - i) * sorted_label_widths[i] > mw)
 	      break;
 	    tot_width += sorted_label_widths[i];
 	  }
           maxsize = (mw - tot_width) / (m->ntabs - i);
-	  maxsize = (m->ww - tot_width) / (m->ntabs - i);
 	} else{
           maxsize = mw;
 	}
@@ -1889,7 +1897,7 @@ long getstate(Window w) {
 unsigned int getsystraywidth() {
   unsigned int w = 0;
   Client *i;
-  if (showsystray)
+  if (showsystray && systray)
     for (i = systray->icons; i; w += i->w + systrayspacing, i = i->next)
       ;
   return w ? w + systrayspacing : 1;
@@ -2081,7 +2089,7 @@ void manage(Window w, XWindowAttributes *wa) {
   updatewmhints(c);
   	{
 		int format;
-		unsigned long *data, n, extra;
+		unsigned long *data = NULL, n = 0, extra;
 		Monitor *m;
 		Atom atom;
 		if (XGetWindowProperty(dpy, c->win, netatom[NetClientInfo], 0L, 2L, False, XA_CARDINAL,
@@ -2536,7 +2544,7 @@ void removesystrayicon(Client *i) {
     return;
   for (ii = &systray->icons; *ii && *ii != i; ii = &(*ii)->next)
     ;
-  if (ii)
+  if (*ii)
     *ii = i->next;
   free(i);
 }
@@ -2729,7 +2737,7 @@ void setborderpx(const Arg *arg) {
 
   if (arg->i == 0)
     selmon->borderpx = borderpx;
-  else if (selmon->borderpx + arg->i < 0)
+  else if ((int)selmon->borderpx + arg->i < 0)
     selmon->borderpx = 0;
   else
     selmon->borderpx += arg->i;
@@ -2829,7 +2837,7 @@ void setfullscreen(Client *c, int fullscreen) {
                     1);
     c->isfullscreen = 1;
     c->oldstate = c->isfloating;
-    c->oldbw = c->bw;
+    c->fsbw = c->bw;
     c->bw = 0;
     c->isfloating = 1;
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
@@ -2839,7 +2847,7 @@ void setfullscreen(Client *c, int fullscreen) {
                     PropModeReplace, (unsigned char *)0, 0);
     c->isfullscreen = 0;
     c->isfloating = c->oldstate;
-    c->bw = c->oldbw;
+    c->bw = c->fsbw;
     c->x = c->oldx;
     c->y = c->oldy;
     c->w = c->oldw;

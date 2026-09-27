@@ -114,6 +114,8 @@ static const Rule rules[] = {
     /* class      instance    title       tags mask     iscentered   isfloating   monitor */
     { "google-chrome",  NULL,       NULL,       1 << 8,       0,           0,           -1 },
     { "eww",      			NULL,       NULL,       0,            0,           1,           -1 },
+    { "Denise",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
+    { "fs-uae",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
     { TERMCLASS,  			"spterm",   NULL,       SPTAG(0),     1,           1,           -1 },
     { TERMCLASS,  			"spcalc",   NULL,       SPTAG(1),     1,           1,           -1 },
     { TERMCLASS,  			"spmusic",  NULL,       SPTAG(2),     1,           1,           -1 },
@@ -247,7 +249,7 @@ static const Key keys[] = {
     { MODKEY,                           XK_t,       setlayout,      {.v = &layouts[0]} },
     { MODKEY|ShiftMask,                 XK_f,       setlayout,      {.v = &layouts[1]} },
     { MODKEY,                           XK_m,       setlayout,      {.v = &layouts[2]} },
-    { MODKEY,                           XK_i,       setlayout,      {.v = &layouts[5]} },
+    { MODKEY|ShiftMask,                 XK_t,       setlayout,      {.v = &layouts[5]} },
     { MODKEY|ShiftMask,                 XK_m,       setlayout,      {.v = &layouts[11]} },
     { MODKEY|ControlMask,               XK_g,       setlayout,      {.v = &layouts[10]} },
     { MODKEY|ControlMask|ShiftMask,     XK_t,       setlayout,      {.v = &layouts[13]} },
