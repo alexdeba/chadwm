@@ -41,6 +41,12 @@ dunst &
 #########
 mpd
 
+###############
+## Dashboard ##
+###############
+# overlay de widgets façon Mac OS X, démarré masqué ; F12 l'affiche/le masque (voir config.h)
+~/.local/bin/osx-dashboard --hidden &
+
 #########
 ## bar ##
 #########

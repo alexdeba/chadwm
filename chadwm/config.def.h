@@ -64,6 +64,7 @@ static const char *colors[][3]      = {
 
 #define TERMINAL "st"
 #define TERMCLASS "St"
+#define DASHBOARDCLASS "osx-dashboard-dev-linux-amd64"
 #define SMALLTERMFONTS "RobotoMonoNerdFont:pixelsize=9"
 #define TERMFONTS "RobotoMonoNerdFont:pixelsize=10"
 #define BIGTERMFONTS "RobotoMonoNerdFont:pixelsize=15"
@@ -117,6 +118,7 @@ static const Rule rules[] = {
     { "Denise",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
     { "fs-uae",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
     { "hatari",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
+    { DASHBOARDCLASS,  	NULL,       NULL,       0,            0,           1,           -1 },
     { TERMCLASS,  			"spterm",   NULL,       SPTAG(0),     1,           1,           -1 },
     { TERMCLASS,  			"spcalc",   NULL,       SPTAG(1),     1,           1,           -1 },
     { TERMCLASS,  			"spmusic",  NULL,       SPTAG(2),     1,           1,           -1 },
@@ -183,7 +185,7 @@ static const Key keys[] = {
 
 		// Apps
     { MODKEY,                           XK_r,       spawn,          SHCMD("rofi -show drun") },
-    { MODKEY,                           XK_Return,  spawn,          SHCMD("alacritty")},
+    { MODKEY,                           XK_Return,  spawn,          SHCMD("ghostty")},
     { MODKEY,          					  	    XK_w,       spawn,          SHCMD("google-chrome") },
   	{ MODKEY,                 					XK_c,       togglescratch,  {.ui = 1} },            // calc
  	  { MODKEY,   						            XK_u,       togglescratch,  {.ui = 0} },            // scratchpad
@@ -193,6 +195,7 @@ static const Key keys[] = {
     { MODKEY, 													XK_p, 			spawn,         	SHCMD("~/scripts/toggleheads.pl") 	},
     { MODKEY, 													XK_s, 			spawn,         	SHCMD("systemctl suspend") 	},
     { MODKEY, 													XK_Print, 	spawn,         	SHCMD("~/scripts/scregcp.sh -s /home/alex/Images/screenshots/") 	},
+    { 0,                                XK_F12,     spawn,          SHCMD("~/.local/bin/osx-dashboard") },  // dashboard façon OS X
 
     // toggle stuff
     { MODKEY,                           XK_b,       togglebar,      {0} },
@@ -270,7 +273,7 @@ static const Key keys[] = {
     { MODKEY|ShiftMask,                 XK_w,       setborderpx,    {.i = default_border } },
 
     // kill dwm
-    { MODKEY|ControlMask,               XK_q,       spawn,        SHCMD("killall bar.sh chadwm") },
+    { MODKEY|ControlMask,               XK_q,       spawn,        SHCMD("killall dwm_bar chadwm") },
 
     // kill window
     { MODKEY,                           XK_q,       killclient,     {0} },
