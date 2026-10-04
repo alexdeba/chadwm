@@ -118,6 +118,7 @@ static const Rule rules[] = {
     { "Denise",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
     { "fs-uae",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
     { "hatari",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
+    { "gearcoleco",			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
     { DASHBOARDCLASS,  	NULL,       NULL,       0,            0,           1,           -1 },
     { TERMCLASS,  			"spterm",   NULL,       SPTAG(0),     1,           1,           -1 },
     { TERMCLASS,  			"spcalc",   NULL,       SPTAG(1),     1,           1,           -1 },
