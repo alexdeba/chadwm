@@ -183,21 +183,20 @@ func getVolume() string {
 		return ""
 	}
 	if strings.Contains(string(out), "[MUTED]") {
-		return fmt.Sprintf("%s %s \U000f0581 %s %s muet %s", Black, Red, White, Grey, BlackBg) // nf-md-volume_off
+		return fmt.Sprintf("%s %s \ueee8 %s %s muet %s", Black, Red, White, Grey, BlackBg) // nf-fa-volume_xmark
 	}
 	vol, err := strconv.ParseFloat(fields[1], 64)
 	if err != nil {
 		return ""
 	}
 	pct := int(vol*100 + 0.5)
-	icon := "\U000f057e" // nf-md-volume_high
+	// Font Awesome glyphs: the md ones are drawn smaller than the other icons of the bar
+	icon := "\uf028" // nf-fa-volume_up
 	switch {
 	case pct == 0:
-		icon = "\U000f0e08" // nf-md-volume_variant_off
-	case pct < 34:
-		icon = "\U000f057f" // nf-md-volume_low
-	case pct < 67:
-		icon = "\U000f0580" // nf-md-volume_medium
+		icon = "\uf026" // nf-fa-volume_off
+	case pct < 50:
+		icon = "\uf027" // nf-fa-volume_down
 	}
 	return fmt.Sprintf("%s %s %s %s %s %d%% %s", Black, Blue, icon, White, Grey, pct, BlackBg)
 }
