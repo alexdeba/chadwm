@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -167,6 +168,40 @@ func getMem() string {
 	return fmt.Sprintf("%s %s \ue266 %s %s  %s %s", Black, Green, White, Grey, usage, BlackBg) // \ue266 : puce (RAM)
 }
 
+// getVolume returns the volume of the default sink (via wpctl), or a muted indicator
+func getVolume() string {
+	// timeout so that a hanging audio server does not freeze the bar
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@").Output()
+	if err != nil {
+		return ""
+	}
+	// output: "Volume: 0.41" or "Volume: 0.41 [MUTED]"
+	fields := strings.Fields(string(out))
+	if len(fields) < 2 {
+		return ""
+	}
+	if strings.Contains(string(out), "[MUTED]") {
+		return fmt.Sprintf("%s %s \U000f0581 %s %s muet %s", Black, Red, White, Grey, BlackBg) // nf-md-volume_off
+	}
+	vol, err := strconv.ParseFloat(fields[1], 64)
+	if err != nil {
+		return ""
+	}
+	pct := int(vol*100 + 0.5)
+	icon := "\U000f057e" // nf-md-volume_high
+	switch {
+	case pct == 0:
+		icon = "\U000f0e08" // nf-md-volume_variant_off
+	case pct < 34:
+		icon = "\U000f057f" // nf-md-volume_low
+	case pct < 67:
+		icon = "\U000f0580" // nf-md-volume_medium
+	}
+	return fmt.Sprintf("%s %s %s %s %s %d%% %s", Black, Blue, icon, White, Grey, pct, BlackBg)
+}
+
 func getWlan() string {
 	data, _ := os.ReadFile("/sys/class/net/" + networkName + "/operstate")
 	state := strings.TrimSpace(string(data))
@@ -183,8 +218,8 @@ func getClock() string {
 }
 
 func updateStatus() {
-	status := fmt.Sprintf("%s %s %s %s %s",
-		getCPU(), getBattery(), getMem(), getWlan(), getClock())
+	status := fmt.Sprintf("%s %s %s %s %s %s",
+		getCPU(), getBattery(), getMem(), getVolume(), getWlan(), getClock())
 	if err := exec.Command("xsetroot", "-name", status).Run(); err != nil {
 		// the X server is gone (e.g. after logout): stop instead of looping forever
 		fmt.Fprintln(os.Stderr, "dwm_bar: xsetroot failed:", err)
