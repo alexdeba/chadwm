@@ -22,8 +22,6 @@ xss-lock -- $locker &
 ##############
 # define keyboard auto-repeat (delay and speed)
 xset r rate 300 50 &
-# shift lock = escape
-setxkbmap -option:escape
 
 ###################
 ## Notifications ##

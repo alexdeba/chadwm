@@ -1,5 +1,19 @@
 package main
 
+/*
+#cgo LDFLAGS: -lX11
+#include <X11/XKBlib.h>
+
+// activeGroup returns the index of the active XKB group (layout), or -1 on error
+static int activeGroup(Display *dpy) {
+	XkbStateRec state;
+	if (XkbGetState(dpy, XkbUseCoreKbd, &state) != Success)
+		return -1;
+	return state.group;
+}
+*/
+import "C"
+
 import (
 	"context"
 	"fmt"
@@ -38,6 +52,11 @@ var (
 	// previous /proc/stat counters, used to compute the CPU usage between two ticks
 	// (zero on the first call, which then gives the average usage since boot)
 	prevIdle, prevTotal uint64
+	// connection to the X server, used to read the active keyboard layout
+	display *C.Display
+	// labels of the XKB groups, in the order given to setxkbmap (see ~/.xsessionrc)
+	layoutLabels = []string{"INTL", "WEUR"}
+
 	// true once the low battery notification has been sent, reset when charging or above threshold
 	batteryWarned bool
 )
@@ -211,14 +230,30 @@ func getWlan() string {
 	return fmt.Sprintf("%s %s 󰤭  ^d^^c#61afef^ Down", Black, Blue)
 }
 
+// getLayout returns the active keyboard layout (XKB group), toggled with both Shift keys
+func getLayout() string {
+	if display == nil {
+		return ""
+	}
+	group := int(C.activeGroup(display))
+	if group < 0 {
+		return ""
+	}
+	label := strconv.Itoa(group + 1)
+	if group < len(layoutLabels) {
+		label = layoutLabels[group]
+	}
+	return fmt.Sprintf("%s %s \uf11c %s %s %s %s", Black, Blue, White, Grey, label, BlackBg) // \uf11c : nf-fa-keyboard
+}
+
 func getClock() string {
 	t := time.Now().Format("02/01/2006 15:04")
 	return fmt.Sprintf("%s %s 󱑆 %s%s %s  ", Black, DarkBlue, Black, Blue, t)
 }
 
 func updateStatus() {
-	status := fmt.Sprintf("%s %s %s %s %s %s",
-		getCPU(), getBattery(), getMem(), getVolume(), getWlan(), getClock())
+	status := fmt.Sprintf("%s %s %s %s %s %s %s",
+		getCPU(), getBattery(), getMem(), getVolume(), getLayout(), getWlan(), getClock())
 	if err := exec.Command("xsetroot", "-name", status).Run(); err != nil {
 		// the X server is gone (e.g. after logout): stop instead of looping forever
 		fmt.Fprintln(os.Stderr, "dwm_bar: xsetroot failed:", err)
@@ -233,6 +268,7 @@ func main() {
 		return
 	}
 	networkName = os.Args[1]
+	display = C.XOpenDisplay(nil) // nil if no X server: the layout block is then left out
 
 	// first update right away, so that the bar is not empty at startup
 	updateStatus()
