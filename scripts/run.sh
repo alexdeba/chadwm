@@ -25,12 +25,6 @@ xset r rate 300 50 &
 # shift lock = escape
 setxkbmap -option:escape
 
-#############
-## Widgets ##
-#############
-# with eww
-eww daemon &
-
 ###################
 ## Notifications ##
 ###################

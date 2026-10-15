@@ -91,13 +91,6 @@ static Sp scratchpads[] = {
 /* tagging */
 static char *tags[] = {"", "", "", "", ""};
 
-static const char* eww[] = { "eww", "-c", "/home/alex/.config/eww", "open" , "eww", NULL };
-
-static const Launcher launchers[] = {
-    /* command     name to display */
-    { eww,         "" },
-};
-
 static const int tagschemes[] = {
     SchemeTag1, SchemeTag2, SchemeTag3, SchemeTag4, SchemeTag5
 };
@@ -114,7 +107,6 @@ static const Rule rules[] = {
      */
     /* class      instance    title       tags mask     iscentered   isfloating   monitor */
     { "google-chrome",  NULL,       NULL,       1 << 8,       0,           0,           -1 },
-    { "eww",      			NULL,       NULL,       0,            0,           1,           -1 },
     { "Denise",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
     { "fs-uae",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
     { "hatari",   			NULL,       NULL,       0,            0,           1,           -1 }, /* RetroGate bezels */
@@ -192,7 +184,6 @@ static const Key keys[] = {
  	  { MODKEY,   						            XK_u,       togglescratch,  {.ui = 0} },            // scratchpad
     { MODKEY,           					      XK_z,       togglescratch,  {.ui = 2} },            // music
     { MODKEY,           					      XK_v,       togglescratch,  {.ui = 3} },            // list of shortcuts
-    { MODKEY, 													XK_g, 			spawn,         	SHCMD("eww open --toggle eww") 	},
     { MODKEY, 													XK_p, 			spawn,         	SHCMD("~/scripts/toggleheads.pl") 	},
     { MODKEY, 													XK_s, 			spawn,         	SHCMD("systemctl suspend") 	},
     { MODKEY, 													XK_Print, 	spawn,         	SHCMD("~/scripts/scregcp.sh -s /home/alex/Images/screenshots/") 	},
