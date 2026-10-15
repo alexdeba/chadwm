@@ -243,7 +243,7 @@ func getLayout() string {
 	if group < len(layoutLabels) {
 		label = layoutLabels[group]
 	}
-	return fmt.Sprintf("%s %s \uf11c %s %s %s %s", Black, Blue, White, Grey, label, BlackBg) // \uf11c : nf-fa-keyboard
+	return fmt.Sprintf("%s %s \U000f030c %s %s %s %s", Black, Blue, White, Grey, label, BlackBg) // \U000f030c : nf-md-keyboard (the fa one is too wide and gets clipped)
 }
 
 func getClock() string {
