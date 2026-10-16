@@ -55,7 +55,7 @@ var (
 	// connection to the X server, used to read the active keyboard layout
 	display *C.Display
 	// labels of the XKB groups, in the order given to setxkbmap (see ~/.xsessionrc)
-	layoutLabels = []string{"INTL", "WEUR"}
+	layoutLabels = []string{"WEUR", "FR"}
 
 	// true once the low battery notification has been sent, reset when charging or above threshold
 	batteryWarned bool
