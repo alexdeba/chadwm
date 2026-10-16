@@ -2,6 +2,7 @@ package main
 
 /*
 #cgo LDFLAGS: -lX11
+#include <stdlib.h>
 #include <X11/XKBlib.h>
 
 // activeGroup returns the index of the active XKB group (layout), or -1 on error
@@ -11,6 +12,33 @@ static int activeGroup(Display *dpy) {
 		return -1;
 	return state.group;
 }
+
+// setRootName sets the name of the root window, read by dwm as the status text (like xsetroot -name)
+static void setRootName(Display *dpy, const char *name) {
+	XStoreName(dpy, DefaultRootWindow(dpy), name);
+	XFlush(dpy);
+}
+
+// selectGroupEvents asks for an event on each layout change and returns the XKB event type, or -1
+static int selectGroupEvents(Display *dpy) {
+	int opcode, eventBase, errorBase;
+	int major = XkbMajorVersion, minor = XkbMinorVersion;
+	if (!XkbQueryExtension(dpy, &opcode, &eventBase, &errorBase, &major, &minor))
+		return -1;
+	if (!XkbSelectEventDetails(dpy, XkbUseCoreKbd, XkbStateNotify, XkbGroupStateMask, XkbGroupStateMask))
+		return -1;
+	return eventBase;
+}
+
+// waitGroupChange blocks until the next layout change
+static void waitGroupChange(Display *dpy, int xkbEventType) {
+	XEvent ev;
+	for (;;) {
+		XNextEvent(dpy, &ev);
+		if (ev.type == xkbEventType && ((XkbEvent *)&ev)->any.xkb_type == XkbStateNotify)
+			return;
+	}
+}
 */
 import "C"
 
@@ -19,9 +47,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
+	"unsafe"
 )
 
 const (
@@ -34,6 +65,8 @@ const (
 	Red      = "^b#e06c75^"
 	Blue     = "^b#61afef^"
 	DarkBlue = "^b#519aba^"
+	Purple   = "^b#c678dd^"
+	Yellow   = "^b#e5c07b^"
 	BlackBg  = "^b#1e222a^"
 )
 
@@ -52,8 +85,10 @@ var (
 	// previous /proc/stat counters, used to compute the CPU usage between two ticks
 	// (zero on the first call, which then gives the average usage since boot)
 	prevIdle, prevTotal uint64
-	// connection to the X server, used to read the active keyboard layout
+	// connection to the X server, used to read the active keyboard layout and to set the status
 	display *C.Display
+	// last status sent to dwm, to skip redrawing the bar when nothing changed
+	lastStatus string
 	// labels of the XKB groups, in the order given to setxkbmap (see ~/.xsessionrc)
 	layoutLabels = []string{"WEUR", "FR"}
 
@@ -95,7 +130,7 @@ func getCPU() string {
 		usage = 100 * (1 - float64(idle-prevIdle)/float64(dTotal))
 	}
 	prevIdle, prevTotal = idle, total
-	return fmt.Sprintf("%s %s    \uf4bc %s %s %.0f%% %s", Black, Green, White, Grey, usage, BlackBg) // \uf4bc : nf-oct-cpu
+	return fmt.Sprintf("%s %s \U000f0ee0 %s %s %.0f%% %s", Black, Green, White, Grey, usage, BlackBg) // \U000f0ee0 : nf-md-cpu_64_bit (the oct one has no width and needed padding spaces)
 }
 
 // readBattery returns the capacity (in %) and the status of the battery
@@ -184,7 +219,7 @@ func getMem() string {
 	if used >= 1024 {
 		usage = fmt.Sprintf("%.1fG", used/1024)
 	}
-	return fmt.Sprintf("%s %s \ue266 %s %s  %s %s", Black, Green, White, Grey, usage, BlackBg) // \ue266 : puce (RAM)
+	return fmt.Sprintf("%s %s \ue266 %s %s %s %s", Black, Purple, White, Grey, usage, BlackBg) // \ue266 : puce (RAM)
 }
 
 // getVolume returns the volume of the default sink (via wpctl), or a muted indicator
@@ -232,9 +267,6 @@ func getWlan() string {
 
 // getLayout returns the active keyboard layout (XKB group), toggled with both Shift keys
 func getLayout() string {
-	if display == nil {
-		return ""
-	}
 	group := int(C.activeGroup(display))
 	if group < 0 {
 		return ""
@@ -243,7 +275,7 @@ func getLayout() string {
 	if group < len(layoutLabels) {
 		label = layoutLabels[group]
 	}
-	return fmt.Sprintf("%s %s \U000f030c %s %s %s %s", Black, Blue, White, Grey, label, BlackBg) // \U000f030c : nf-md-keyboard (the fa one is too wide and gets clipped)
+	return fmt.Sprintf("%s %s \U000f030c %s %s %s %s", Black, Yellow, White, Grey, label, BlackBg) // \U000f030c : nf-md-keyboard (the fa one is too wide and gets clipped)
 }
 
 func getClock() string {
@@ -254,10 +286,33 @@ func getClock() string {
 func updateStatus() {
 	status := fmt.Sprintf("%s %s %s %s %s %s %s",
 		getCPU(), getBattery(), getMem(), getVolume(), getLayout(), getWlan(), getClock())
-	if err := exec.Command("xsetroot", "-name", status).Run(); err != nil {
-		// the X server is gone (e.g. after logout): stop instead of looping forever
-		fmt.Fprintln(os.Stderr, "dwm_bar: xsetroot failed:", err)
-		os.Exit(1)
+	if status == lastStatus {
+		return
+	}
+	lastStatus = status
+	// if the X server is gone (e.g. after logout), Xlib exits the program
+	cs := C.CString(status)
+	C.setRootName(display, cs)
+	C.free(unsafe.Pointer(cs))
+}
+
+// watchLayout sends on ch at each keyboard layout change, using its own X connection
+// (Xlib is not thread-safe, and XNextEvent blocks)
+func watchLayout(ch chan<- struct{}) {
+	dpy := C.XOpenDisplay(nil)
+	if dpy == nil {
+		return
+	}
+	eventType := C.selectGroupEvents(dpy)
+	if eventType < 0 {
+		return
+	}
+	for {
+		C.waitGroupChange(dpy, eventType)
+		select {
+		case ch <- struct{}{}:
+		default: // an update is already pending
+		}
 	}
 }
 
@@ -268,7 +323,17 @@ func main() {
 		return
 	}
 	networkName = os.Args[1]
-	display = C.XOpenDisplay(nil) // nil if no X server: the layout block is then left out
+	display = C.XOpenDisplay(nil)
+	if display == nil {
+		fmt.Fprintln(os.Stderr, "dwm_bar: cannot open the X display")
+		os.Exit(1)
+	}
+
+	// immediate refresh: on SIGUSR1 (sent by the volume keys, see config.h) and on layout change
+	refresh := make(chan struct{}, 1)
+	sigusr1 := make(chan os.Signal, 1)
+	signal.Notify(sigusr1, syscall.SIGUSR1)
+	go watchLayout(refresh)
 
 	// first update right away, so that the bar is not empty at startup
 	updateStatus()
@@ -280,6 +345,10 @@ func main() {
 	for {
 		select {
 		case <-refreshTicker.C:
+			updateStatus()
+		case <-sigusr1:
+			updateStatus()
+		case <-refresh:
 			updateStatus()
 		case <-batteryTicker.C:
 			checkBattery()
