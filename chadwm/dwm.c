@@ -1529,7 +1529,8 @@ void drawbar(Monitor *m) {
   drw_setscheme(drw, scheme[SchemeLayout]);
   x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
 
-  w = floatbar?mw + m->gappov * 2 - sw - stw - x:mw - sw - stw - x;
+  /* mw already accounts for the gaps: adding them back made the title overlap the status */
+  w = mw - sw - stw - x;
   if (w > bh_n) {
     if (m->sel) {
       drw_setscheme(drw, scheme[m == selmon ? SchemeTitle : SchemeNorm]);
