@@ -3,9 +3,12 @@
 ##############
 ## Graphics ##
 ##############
-xrdb merge ~/.Xresources 
+xrdb -merge ~/.Xresources
 brightnessctl set 50%
-feh --bg-fill ~/Images/Wallpapers/wall.png &
+# dernier fond d'écran choisi (feh l'enregistre dans ~/.fehbg)
+~/.fehbg &
+# couleur de l'écran selon l'heure
+redshift &
 
 # for graphical effects: blur, round corner
 picom &
@@ -16,12 +19,6 @@ picom &
 export locker="i3lock -e -i /home/alex/Images/Wallpapers/linux/thinkpad.png"
 xset s 300
 xss-lock -- $locker &
-
-##############
-## Keyboard ##
-##############
-# define keyboard auto-repeat (delay and speed)
-xset r rate 300 50 &
 
 ###################
 ## Notifications ##
@@ -36,7 +33,7 @@ mpd
 ###############
 ## Dashboard ##
 ###############
-# overlay de widgets façon Mac OS X, démarré masqué ; F12 l'affiche/le masque (voir config.h)
+# overlay de widgets façon Mac OS X, démarré masqué ; Win Escape l'affiche (voir config.h)
 ~/.local/bin/osx-dashboard --hidden &
 
 #########

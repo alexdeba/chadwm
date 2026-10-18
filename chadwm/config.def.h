@@ -169,11 +169,9 @@ static const Key keys[] = {
 	{0,				XF86XK_MonBrightnessUp,     spawn,	{.v = light_up}},
 	{0,				XF86XK_MonBrightnessDown,   spawn,	{.v = light_down}},
 
-    // screenshot fullscreen and cropped
+    // screenshot fullscreen to clipboard (cropped: Win Print, see scregcp.sh)
     {MODKEY|ControlMask,                XK_u,       spawn,
-        SHCMD("maim | xclip -selection clipboard -t image/png")},
-    {MODKEY,                            XK_u,       spawn,
-        SHCMD("maim --select | xclip -selection clipboard -t image/png")},
+        SHCMD("scrot - | xclip -selection clipboard -t image/png")},
 
 		// Apps
     { MODKEY,                           XK_r,       spawn,          SHCMD("rofi -show drun") },
@@ -186,7 +184,7 @@ static const Key keys[] = {
     { MODKEY, 													XK_p, 			spawn,         	SHCMD("~/scripts/toggleheads.pl") 	},
     { MODKEY, 													XK_s, 			spawn,         	SHCMD("systemctl suspend") 	},
     { MODKEY, 													XK_Print, 	spawn,         	SHCMD("~/scripts/scregcp.sh -s /home/alex/Images/screenshots/") 	},
-    { 0,                                XK_F12,     spawn,          SHCMD("~/.local/bin/osx-dashboard") },  // dashboard façon OS X
+    { MODKEY,                           XK_Escape,  spawn,          SHCMD("~/.local/bin/osx-dashboard") },  // dashboard façon OS X
 
     // toggle stuff
     { MODKEY,                           XK_b,       togglebar,      {0} },
