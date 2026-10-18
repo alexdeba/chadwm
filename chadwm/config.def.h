@@ -64,7 +64,7 @@ static const char *colors[][3]      = {
 #define TERMINAL "st"
 #define TERMCLASS "St"
 #define DASHBOARDCLASS "osx-dashboard-dev-linux-amd64"
-#define SMALLTERMFONTS "RobotoMonoNerdFont:pixelsize=9"
+#define SMALLTERMFONTS "RobotoMonoNerdFont:pixelsize=11"
 #define TERMFONTS "RobotoMonoNerdFont:pixelsize=10"
 #define BIGTERMFONTS "RobotoMonoNerdFont:pixelsize=15"
 
@@ -74,7 +74,7 @@ typedef struct {
 } Sp;
 const char *spcmd1[] = {"st","-n","spterm",  "-f", TERMFONTS,     "-g", "100x32", NULL };
 const char *spcmd2[] = {"st","-n","spcalc",  "-f", BIGTERMFONTS,  "-g", "50x20",  "-e", "qalc", NULL };
-const char *spcmd3[] = {"st","-n","spterm",  "-f", SMALLTERMFONTS,"-g", "105x36", "-e", "dash", "-c", "glow", "-n", "-t", "~/Documents/QRGs/alias_shortcuts.md", NULL };
+const char *spcmd3[] = {"st","-n","spshortcuts","-f", SMALLTERMFONTS,"-g", "90x48", "-e", "sh", "-c", "glow -p -w 86 ~/Documents/QRGs/alias_shortcuts.md", NULL };
 
 
 static Sp scratchpads[] = {
@@ -111,6 +111,7 @@ static const Rule rules[] = {
     { DASHBOARDCLASS,  	NULL,       NULL,       0,            0,           1,           -1 },
     { TERMCLASS,  			"spterm",   NULL,       SPTAG(0),     1,           1,           -1 },
     { TERMCLASS,  			"spcalc",   NULL,       SPTAG(1),     1,           1,           -1 },
+    { TERMCLASS,  			"spshortcuts", NULL,    SPTAG(2),     1,           1,           -1 },
 		
 };
 
