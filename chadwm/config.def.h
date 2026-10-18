@@ -74,16 +74,14 @@ typedef struct {
 } Sp;
 const char *spcmd1[] = {"st","-n","spterm",  "-f", TERMFONTS,     "-g", "100x32", NULL };
 const char *spcmd2[] = {"st","-n","spcalc",  "-f", BIGTERMFONTS,  "-g", "50x20",  "-e", "qalc", NULL };
-const char *spcmd3[] = {"st","-n","spmusic", "-f", TERMFONTS,     "-g", "90x18",  "-e", "ncmpcpp", "-s", "playlist_editor", NULL };
-const char *spcmd4[] = {"st","-n","spterm",  "-f", SMALLTERMFONTS,"-g", "105x36", "-e", "dash", "-c", "glow", "-n", "-t", "~/Documents/QRGs/alias_shortcuts.md", NULL };
+const char *spcmd3[] = {"st","-n","spterm",  "-f", SMALLTERMFONTS,"-g", "105x36", "-e", "dash", "-c", "glow", "-n", "-t", "~/Documents/QRGs/alias_shortcuts.md", NULL };
 
 
 static Sp scratchpads[] = {
    /* name          cmd  */
    {"spterm",      spcmd1},
-   {"spranger",    spcmd2},
-   {"spmusic",     spcmd3},
-   {"spshortcuts", spcmd4},
+   {"spcalc",      spcmd2},
+   {"spshortcuts", spcmd3},
 };
 
 
@@ -113,7 +111,6 @@ static const Rule rules[] = {
     { DASHBOARDCLASS,  	NULL,       NULL,       0,            0,           1,           -1 },
     { TERMCLASS,  			"spterm",   NULL,       SPTAG(0),     1,           1,           -1 },
     { TERMCLASS,  			"spcalc",   NULL,       SPTAG(1),     1,           1,           -1 },
-    { TERMCLASS,  			"spmusic",  NULL,       SPTAG(2),     1,           1,           -1 },
 		
 };
 
@@ -179,8 +176,7 @@ static const Key keys[] = {
     { MODKEY,          					  	    XK_w,       spawn,          SHCMD("google-chrome") },
   	{ MODKEY,                 					XK_c,       togglescratch,  {.ui = 1} },            // calc
  	  { MODKEY,   						            XK_u,       togglescratch,  {.ui = 0} },            // scratchpad
-    { MODKEY,           					      XK_z,       togglescratch,  {.ui = 2} },            // music
-    { MODKEY,           					      XK_v,       togglescratch,  {.ui = 3} },            // list of shortcuts
+    { MODKEY,           					      XK_v,       togglescratch,  {.ui = 2} },            // list of shortcuts
     { MODKEY, 													XK_p, 			spawn,         	SHCMD("~/scripts/toggleheads.pl") 	},
     { MODKEY, 													XK_s, 			spawn,         	SHCMD("systemctl suspend") 	},
     { MODKEY, 													XK_Print, 	spawn,         	SHCMD("~/scripts/scregcp.sh -s /home/alex/Images/screenshots/") 	},
